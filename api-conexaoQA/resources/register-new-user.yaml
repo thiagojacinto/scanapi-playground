@@ -1,0 +1,15 @@
+- name: registering a new user
+  path: /users
+  method: post
+  body:
+    name: ${{ "Test User " + str(random.randrange(2000000)) }}
+    email: ${{ "test-user-" + str(random.randrange(2000000)) + "@test.mail.dev"}}
+    password: test-user-password
+  vars:
+    registered_token: ${{ response.json()["jwt"] }}
+  tests:
+    - name: status_code_is_201
+      assert: ${{ response.status_code == 201 }}
+
+    - name: response_time_is_under_60_seconds
+      assert: ${{ response.elapsed.total_seconds() < 60 }}
