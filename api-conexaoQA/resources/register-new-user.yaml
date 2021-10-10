@@ -13,3 +13,60 @@
 
     - name: response_time_is_under_60_seconds
       assert: ${{ response.elapsed.total_seconds() < 60 }}
+
+- name: attempt to register a new user without name
+  path: /users
+  method: post
+  body:
+    email: ${{ "test-user-" + str(random.randrange(2000000)) + "@test.mail.dev"}}
+    password: test-user-password
+
+  tests:
+    - name: status_code_is_400
+      assert: ${{ response.status_code == 400 }}
+
+    - name: response_include_name_parameter_on_error
+      assert: ${{ "name" in response.json()["errors"][0]["param"] }}
+
+- name: attempt to register a new user without email
+  path: /users
+  method: post
+  body:
+    name: ${{ "Test User " + str(random.randrange(2000000)) }}
+    password: test-user-password
+
+  tests:
+    - name: status_code_is_400
+      assert: ${{ response.status_code == 400 }}
+
+    - name: response_include_email_parameter_on_error
+      assert: ${{ "email" in response.json()["errors"][0]["param"] }}
+
+- name: attempt to register a new user without password
+  path: /users
+  method: post
+  body:
+    name: ${{ "Test User " + str(random.randrange(2000000)) }}
+    email: ${{ "test-user-" + str(random.randrange(2000000)) + "@test.mail.dev"}}
+
+  tests:
+    - name: status_code_is_400
+      assert: ${{ response.status_code == 400 }}
+
+    - name: response_include_password_parameter_on_error
+      assert: ${{ "password" in response.json()["errors"][0]["param"] }}
+
+- name: attempt to register a new user with password smaller than 6 characters
+  path: /users
+  method: post
+  body:
+    name: ${{ "Test User " + str(random.randrange(2000000)) }}
+    email: ${{ "test-user-" + str(random.randrange(2000000)) + "@test.mail.dev"}}
+    password: 12345
+
+  tests:
+    - name: status_code_is_400
+      assert: ${{ response.status_code == 400 }}
+
+    - name: response_include_password_parameter_on_error
+      assert: ${{ "password" in response.json()["errors"][0]["param"] }}
