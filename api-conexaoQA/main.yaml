@@ -1,0 +1,6 @@
+# API name: ConexaoQA
+endpoints:
+  - name: api-ConexaoQA
+    path: https://conexaoqa.herokuapp.com/api
+    requests:
+      !include resources/register-new-user.yaml

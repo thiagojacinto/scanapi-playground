@@ -1,0 +1,14 @@
+appdirs==1.4.4
+certifi==2021.10.8
+charset-normalizer==2.0.6
+click==7.1.2
+curlify2==1.0.1
+idna==3.2
+Jinja2==2.11.3
+MarkupSafe==2.0.1
+PyYAML==5.4
+requests==2.26.0
+responses==0.12.1
+scanapi==2.6.0
+six==1.16.0
+urllib3==1.26.7
