@@ -3,7 +3,7 @@
   method: post
   body:
     name: ${{ "Test User " + str(random.randrange(2000000)) }}
-    email: ${{ "test-user-" + str(random.randrange(2000000)) + "@test.mail.dev"}}
+    email: ${{ "test-user-" + str(random.randrange(2000000)) + "@test.mail.dev" }}
     password: test-user-password
   vars:
     registered_token: ${{ response.json()["jwt"] }}
@@ -70,3 +70,18 @@
 
     - name: response_include_password_parameter_on_error
       assert: ${{ "password" in response.json()["errors"][0]["param"] }}
+
+- name: attempt to register a new user with an already registered e-mail
+  path: /users
+  method: post
+  body:
+    name: ${{ "Test User " + str(random.randrange(2000000)) }}
+    email: repeated-email@test.mail.dev
+    password: test-user-password
+
+  tests:
+    - name: status_code_is_400
+      assert: ${{ response.status_code == 400 }}
+
+    - name: response_include_registrado_on_msg
+      assert: ${{ "registrado" in response.json()["errors"][0]["msg"] }}
