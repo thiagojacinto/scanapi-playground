@@ -1,0 +1,54 @@
+- name: successfully authenticate an user
+  path: /auth
+  method: post
+  body:
+    email: test-user-001@test.mail.dev
+    password: test-user-password
+  vars:
+    auth_token: ${{ response.json()["jwt"] }}
+  tests:
+    - name: status_code_is_200
+      assert: ${{ response.status_code == 200 }}
+
+    - name: response_time_is_under_60_seconds
+      assert: ${{ response.elapsed.total_seconds() < 60 }}
+
+    - name: response_jwt_is_not_empty
+      assert: ${{ response.json()["jwt"] != " " and response.json()["jwt"] != "" }}
+
+- name: attempt to authenticate an user without email
+  path: /auth
+  method: post
+  body:
+    password: test-user-password
+  tests:
+    - name: status_code_is_400
+      assert: ${{ response.status_code == 400 }}
+    
+    - name: response_include_email_parameter_on_error
+      assert: ${{ "email" in response.json()["errors"][0]["param"] }}
+
+- name: attempt to authenticate an user without password
+  path: /auth
+  method: post
+  body:
+    email: test-user-001@test.mail.dev
+  tests:
+    - name: status_code_is_400
+      assert: ${{ response.status_code == 400 }}
+    
+    - name: response_include_password_parameter_on_error
+      assert: ${{ "password" in response.json()["errors"][0]["param"] }}
+
+- name: attempt to authenticate a not registered user
+  path: /auth
+  method: post
+  body:
+    email: test-user-001@test.mail.dev
+    password: wrong-test-user-password
+  tests:
+    - name: status_code_is_401
+      assert: ${{ response.status_code == 401 }}
+    
+    - name: response_include_password_parameter_on_error
+      assert: ${{ "Credenciais" in response.json()["errors"][0]["msg"] }}
