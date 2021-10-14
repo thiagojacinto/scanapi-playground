@@ -9,3 +9,8 @@ endpoints:
     path: https://conexaoqa.herokuapp.com/api
     requests:
       !include resources/authenticate-an-user.yaml
+  
+  - name: User Profile
+    path: https://conexaoqa.herokuapp.com/api
+    requests:
+      !include resources/user-profile.yaml

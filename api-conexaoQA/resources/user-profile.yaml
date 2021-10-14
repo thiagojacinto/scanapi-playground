@@ -1,0 +1,146 @@
+- name: Auxiliary registering a new user
+  path: /users
+  method: post
+  body:
+    name: ${{ "Test User " + str(random.randrange(2000000)) }}
+    email: ${{ "test-user-" + str(random.randrange(2000000)) + "@test.mail.dev" }}
+    password: test-user-password
+  vars:
+    registered_token: ${{ response.json()["jwt"] }}
+  tests:
+    - name: status_code_is_201
+      assert: ${{ response.status_code == 201 }}
+
+- name: Successfully create a new profile for a registered user
+  path: /profile
+  method: post
+  headers:
+    Cookie: jwt=${registered_token}
+  body:
+    company: my-company
+    status: processing
+    location: brazil
+    website: https://github.com/thiagojacinto
+    skills: develop test
+    bio: problem solver
+    githubusername: thiagojacinto
+    youtube: string
+    twitter: string
+    facebook: string
+    linkedin: thiago-jacinto
+    instagram: string
+    medium: string
+  tests:
+    - name: status_code_is_201
+      assert: ${{ response.status_code == 201 }}
+
+    - name: response_time_is_under_60_seconds
+      assert: ${{ response.elapsed.total_seconds() < 60 }}
+
+    - name: response_id_is_not_empty
+      assert: ${{ response.json()["_id"] != "" and response.json()["_id"] != " " }}
+
+- name: Successfully update a profile for a registered user
+  path: /profile
+  method: post
+  headers:
+    Cookie: jwt=${registered_token}
+  body:
+    company: my-updated-company
+    status: processing
+    location: brazil
+    website: https://github.com/thiagojacinto
+    skills: test
+    bio: problem solver
+    githubusername: thiagojacinto
+    youtube: string
+    twitter: string
+    facebook: string
+    linkedin: thiago-jacinto
+    instagram: string
+    medium: string
+  tests:
+    - name: status_code_is_200
+      assert: ${{ response.status_code == 200 }}
+
+    - name: response_company_was_updated
+      assert: ${{ response.json()["company"] == "my-updated-company" }}
+
+    - name: response_skills_were_updated
+      assert: ${{ response.json()["skills"][0] == "test" }}
+
+- name: Attempt to create a profile with invalid JWT
+  path: /profile
+  method: post
+  headers:
+    Cookie: jwt=invalid-token
+  body:
+    company: my-company
+    status: processing
+    location: brazil
+    website: https://github.com/thiagojacinto
+    skills: test, develop
+    bio: problem solver
+    githubusername: thiagojacinto
+    youtube: string
+    twitter: string
+    facebook: string
+    linkedin: thiago-jacinto
+    instagram: string
+    medium: string
+  tests:
+    - name: status_code_is_401
+      assert: ${{ response.status_code == 401 }}
+
+    - name: response_indicate_invalid_token
+      assert: ${{ "Token" in response.json()["errors"][0]["msg"] }}
+
+- name: Attempt to create a profile without status
+  path: /profile
+  method: post
+  headers:
+    Cookie: jwt=${registered_token}
+  body:
+    company: my-company
+    location: brazil
+    website: https://github.com/thiagojacinto
+    skills: test, develop
+    bio: problem solver
+    githubusername: thiagojacinto
+    youtube: string
+    twitter: string
+    facebook: string
+    linkedin: thiago-jacinto
+    instagram: string
+    medium: string
+  tests:
+    - name: status_code_is_400
+      assert: ${{ response.status_code == 400 }}
+
+    - name: response_indicate_missing_status_parameter
+      assert: ${{ "status" in response.json()["errors"][0]["param"] }}
+
+- name: Attempt to create a profile without skills
+  path: /profile
+  method: post
+  headers:
+    Cookie: jwt=${registered_token}
+  body:
+    company: my-company
+    status: processing
+    location: brazil
+    website: https://github.com/thiagojacinto
+    bio: problem solver
+    githubusername: thiagojacinto
+    youtube: string
+    twitter: string
+    facebook: string
+    linkedin: thiago-jacinto
+    instagram: string
+    medium: string
+  tests:
+    - name: status_code_is_400
+      assert: ${{ response.status_code == 400 }}
+
+    - name: response_indicate_missing_skills_parameter
+      assert: ${{ "skills" in response.json()["errors"][0]["param"] }}
