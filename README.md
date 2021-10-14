@@ -1,6 +1,21 @@
 # ScanAPI: a playground
 Using ScanAPI testing tool to test open APIs 
 
+## Install & Using
+
+You may install the project dependencies by using the following command:
+```sh
+git clone https://github.com/thiagojacinto/scanapi-playground.git # clone this repository from GitHub
+
+cd scanapi-playground # move to local repository directory
+
+# it is recommended to use Python virtual enviroment
+python3 -m venv .venv
+source .venv/bin/activate
+
+python -m pip install -r requirements.txt # read the dependencies and install the available versions
+```
+
 ## APIs
 
 Open APIs
