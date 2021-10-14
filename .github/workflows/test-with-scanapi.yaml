@@ -11,7 +11,7 @@ jobs:
       - name: Run automated API tests
         uses: scanapi/github-action@v1
         with:
-          arguments: "run ./api-conexaoQA/scanapi.conf"
+          arguments: "run -c api-conexaoQA/scanapi.conf -ll DEBUG"
       
       - name: Upload scanapi-report.html
         uses: actions/upload-artifact@v2
