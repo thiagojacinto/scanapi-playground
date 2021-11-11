@@ -144,3 +144,26 @@
 
     - name: response_indicate_missing_skills_parameter
       assert: ${{ "skills" in response.json()["errors"][0]["param"] }}
+
+- name: Return the logged User profile
+  path: /profile/me
+  method: get
+  headers:
+    Cookie: jwt=${registered_token}
+  vars:
+    registered_id: ${{ response.json()["user"]["_id"] }}
+  tests:
+    - name: status_code_is_200
+      assert: ${{ response.status_code == 200 }}
+
+    - name: response_time_is_under_60_seconds
+      assert: ${{ response.elapsed.total_seconds() < 60 }}
+
+    - name: response_id_is_not_empty
+      assert: ${{ response.json()["_id"] != "" and response.json()["_id"] != " " }}
+
+    - name: githubusername_should_be_thiagojacinto
+      assert: ${{ response.json()["githubusername"] == "thiagojacinto" }}
+    
+    - name: linkedin_should_be_thiago-jacinto
+      assert: ${{ response.json()["social"]["linkedin"] == "thiago-jacinto" }}
